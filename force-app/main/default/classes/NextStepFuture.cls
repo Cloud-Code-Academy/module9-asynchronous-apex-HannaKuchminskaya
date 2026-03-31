@@ -30,6 +30,29 @@ public with sharing class NextStepFuture {
     //[public | private ] [static] data_type method_name (input parameters) {
     //  The body of the method
     //}
+        @future
+    public static void updateAllAccountsAndOpportunities () {
+
+    List<Account> allAccounts = [SELECT Id, Next_Step__c FROM Account];
+    List<Opportunity> allOpportunities = [SELECT Id, NextStep FROM Opportunity];
+    for (Account acct : allAccounts){
+        acct.Next_Step__c = 'Meeting in the future';
+    }
+    for (Opportunity oppt : allOpportunities){
+        oppt.NextStep = 'Meeting in the future';
+        }
+        if (!allAccounts.isEmpty()){
+            update allAccounts;
+        }
+        if (!allOpportunities.isEmpty()){
+            update allOpportunities;
+        }
+        
+        
+
+    }
+
+
 
     /*
     * Question 2
@@ -42,8 +65,7 @@ public with sharing class NextStepFuture {
         Opportunity bigDeal = new Opportunity();
         insertBigDeal(bigDeal);
 
-        UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId() OR Name = 'CRO' LIMIT 1];
-        updateUserRoleName(roles);
+        updateUserRoleName(UserInfo.getUserRoleId());
     }
 
     // Helper method to insert big deal
@@ -58,8 +80,10 @@ public with sharing class NextStepFuture {
 
 
     // Helper method to update role name
-    private static void updateUserRoleName(UserRole[] roles){
+    @future
+    public static void updateUserRoleName(Id userRoleId){
         UserRole role;
+        UserRole[] roles = [SELECT Id, Name FROM UserRole WHERE Id = : userRoleId LIMIT 1];
         if (roles.isEmpty()) {
             role = new UserRole();
             role.portalType = 'None'; 
